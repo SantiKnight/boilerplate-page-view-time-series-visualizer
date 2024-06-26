@@ -38,23 +38,27 @@ def draw_line_plot():
 
 def draw_bar_plot():
     # Copy and modify data for monthly bar plot
-    df_bar = pd.DataFrame()
-    df_bar['date'] = df['date']
-    df_bar['year'] = df['date'].dt.year  # Add a 'year' column based on date
-    df_bar['month'] = df['date'].dt.month_name()  # Add a 'month' column with month names
+    meses = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+    meses = pd.api.types.CategoricalDtype(categories=meses)
+    df_bar = df
+    df_bar['year'] = df_bar.index.year  # Add a 'year' column based on index
+    df_bar['month'] = df_bar.index.month_name()  # Add a 'month' column with month names
+    df_bar["month"] = df_bar["month"].astype(meses)
 
     # Resample data by year and month, averaging daily page views
-    monthly_averages = df_bar.groupby(['date'.dt.year, 'month'])['value'].mean()
+    monthly_averages = df_bar.groupby(['year', 'month'])['value'].mean()
 
     # Unstack to create a DataFrame suitable for bar plot
     monthly_averages_unstacked = monthly_averages.unstack()
 
+    month_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
     fig, ax = plt.subplots(figsize=(10, 6))  # Create a figure and axes
-    monthly_averages_unstacked.plot(kind='bar', colormap='tab20', ax=ax)  # Plot bars
+    monthly_averages_unstacked.plot(kind='bar', ax=ax, xlim=(month_order[0], month_order[11]))  # Set xlim with indices
     ax.set_title('Months')
     ax.set_xlabel('Years')
     ax.set_ylabel('Average Page Views')
-    ax.legend(title='Months', loc='upper left', bbox_to_anchor=(1, 1))  # Add legend with title
+    ax.legend(title='Months', loc='upper left', bbox_to_anchor=(0.01, 1))  # Adjust bbox_to_anchor
 
     # Rotate x-axis labels for better readability
     plt.xticks(rotation=45)
@@ -66,19 +70,7 @@ def draw_bar_plot():
     return fig
 
 def draw_box_plot():
-    # Prepare data for box plots (this part is done!)
-    df_box = df.copy()
-    df_box.reset_index(inplace=True)
-    df_box['year'] = [d.year for d in df_box.date]
-    df_box['month'] = [d.strftime('%b') for d in df_box.date]
-
-    # Draw box plots (using Seaborn)
-
-    fig, ax = plt.subplots()
-    ax.plot(df)
-    plt.show()
-
-
+    
 
     # Save image and return fig (don't change this part)
     fig.savefig('box_plot.png')
